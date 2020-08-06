@@ -1,0 +1,111 @@
+{% extends 'user/base.html' %}
+{% load profile %}
+{% load static %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% load friendshiptags %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-3">
+    <div class="shadow m-1 rounded">
+      <div class="card-body">
+        <div class="author text-center">
+          <img class="rounded-circle account-img w-50" src="{%  static 'user.png' %}" alt="Profile Img">
+          <p class="description lead">
+            @{{ user.username }}
+          <div class="container rounded shadow-sm">
+            <p class="d-flex align-items-start justify-content-center">
+              <i class="fas fa-quote-left fa-xs "></i><i style="font-size: 20px;">{{user.profile.quote}}</i><i
+                class="fas fa-quote-right fa-xs "></i><br>
+            </p>
+            <p>
+              {% if user.first_name %}
+              <small class="text-muted">- {{user.first_name}}</small>
+              {% else %}
+              <small class="text-muted">- {{user.username}}</small>
+              {% endif %}
+            </p>
+          </div>
+          {% if request.user.is_authenticated %}
+          <div class="follow_div">
+            {% if user not in following %}
+            {% csrf_token %}
+              <button  class="follow btn btn-dark shadow-sm" id="foll" value="f">Follow</button>
+            {% else %}
+              <button class="follow btn btn-dark shadow-sm" id="foll" value="u">Unfollow</button>
+            {% endif %}
+          </div>
+          {% endif %}
+          </p>
+          <small><i class="fas fa-book-open"></i> {% total_reads user.id %}</small>
+        </div>
+      </div>
+    </div>
+    <div class="card card-user">
+      <div class="card-header">
+        <h4 class="card-title">Friends</h4>
+      </div>
+      <div class="card-body">
+        {% friends user %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-9 shadow">
+    <div class="container m-1">
+      <div>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link" id="follower-tab" data-toggle="tab" href="#followers" role="tab" aria-controls="drafted"
+              aria-selected="false">Followers </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#published" role="tab"
+              aria-controls="published" aria-selected="true">Published Books </a>
+          </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content" id="myTabContent">
+          <div class="tab-pane fade show active" id="published" role="tabpanel" aria-labelledby="home-tab">
+            {% published_books user.id %}
+          </div>
+          <div class="tab-pane fade" id="followers" role="tabpanel" aria-labelledby="follower-tab">
+            {% followers user %}
+            <small class="d-flex align-self-end text-muted">Please reload to see updated followers list</small>
+          </div>
+        </div>
+      </div>
+      <br>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock content %}
+
+{% block javascript %}
+<script type="text/javascript">
+  $('#foll').click(function () {
+    $.ajax({
+      type: 'POST',
+      url: '/follow/',
+      data: {
+        'follower_id': '{{user.id}}',
+        'action':$('#foll').attr('value'),
+        'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+      },
+      success: function (data) {
+        var icon = $('#foll');
+        if (data=='f'){
+          $('#foll').html("Follow");
+          icon.attr('value', 'f');
+        }
+        else{
+          $('#foll').html("Unfollow");
+          icon.attr('value', 'u');
+        }
+        }
+    });
+  });
+</script>
+{% endblock %}

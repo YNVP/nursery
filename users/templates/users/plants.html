@@ -1,0 +1,31 @@
+<div class="card-columns">
+	{% with user.favorite.all as favorite_books %}
+	{% for book in books %}
+	<div class="card mb-3 shadow" style="max-width: 540px;">
+		<div class="row no-gutters">
+		<div class="col-md-5">
+			<a href="{% url 'detail' book.id %}">
+				<img src="{{book.image}}" class="card-img" alt="...">
+			</a>
+		</div>
+		<div class="col-md-7">
+			<div class="card-body">
+				<a href="{% url 'detail' book.id %}" class="card-title nav-link p-0">
+					<h5>{{ book.name }}</h5>
+				</a>
+				<small class="text-muted">{{book.chapters.all.count}} Chapters &middot;<span>{{ book.hit_count.hits }} </span>views</small>
+				<p class="card-text"><small class="text-muted">{{book.published_date|timesince }} ago</small></p>
+				<small class="text-muted">{{book.published_year}}</small>
+				{% for genre in book.genre.all %}
+				<p class="card-text"><small class="text-muted"> ※{{genre}} </small></p>
+				{% endfor %}
+				{% for tag in book.tags.all %}
+					<a class="mr-6" href="{% url 'tag_books' tag %}"><span class="badge badge-light btn-outline-success ">#{{tag}}</span></a>
+				{% endfor %}
+			</div>
+		</div>
+		</div>
+	</div>
+	{% endfor %}
+	{% endwith %}
+</div>

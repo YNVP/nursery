@@ -1,0 +1,40 @@
+{% extends 'user/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+		{% for book in books %}
+	    <img class="rounded article-img card-img-top" src="{{ book.image.url }}" height="50" width="50">
+	      <article class="media content-section card">
+	          <div class="media-body">
+	            <div class="article-metadata container"><br>
+	              Author :<a class="mr-6" href="{% url 'author-book' book.author %}">{{ book.author}}</a>
+	              <small class="text-muted">{{ book.date_added|date:"F d, Y" }}</small><br><br>
+	              <h1 class="card-title">{{ book.name }}</h1><br>
+	              <h5 class="card-text">Genre :{{ book.genre }}</h5><br>
+	              <h5>Author :{{ book.author}}</h5>
+	              <h5 class="card-text">Rating :{{ book.rating }}</h5 ><br>
+	            </div>
+	            <br>
+	          <button type="button" class="btn btn-default" ><a href="{% url 'book-detail' book.id %}">Book Details</a></button>
+	          </div>
+	      </article><br><br>
+	  	{% endfor %}
+		  {% if is_paginated %}
+		      {% if page_obj.has_previous %}
+		          <a class="btn btn-outline-secondary mb-4" href="?page=1">First Page</a>
+		          <a class="btn btn-outline-secondary mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+		      {% endif %}
+
+		      {% for num in page_obj.paginator.page_range %}
+		        {% if page_obj.number == num %}
+		          <a class="btn btn-outline-secondary mb-4" href="?page={{ num }}">{{ num }}</a>
+		        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+		          <a class="btn btn-outline-secondary mb-4" href="?page={{ num }}">{{ num }}</a>
+		        {% endif %}
+		      {% endfor %}
+
+		      {% if page_obj.has_next %}
+		        <a class="btn btn-outline-secondary mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+		        <a class="btn btn-outline-secondary mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last Page</a>
+		      {% endif %}
+		 {% endif %} 
+{% endblock content %}
