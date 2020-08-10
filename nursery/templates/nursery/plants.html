@@ -1,0 +1,25 @@
+{% extends 'users/base.html' %}
+{% block content %}
+<div class="card-columns">
+	{% for plant in plants %}
+	<div class="card mb-3 shadow" style="max-width: 540px;">
+		<div class="row no-gutters">
+			<div class="col-md-5">
+				<a href="{% url 'plant_detail' plant.id %}">
+					<img class="rounded" src="{{plant.image.url}}" alt="{{plant.name}} cover page" id='bg_image'>
+				</a>
+			</div>
+			<div class="col-md-7">
+				<div class="card-body">
+					<a href="{% url 'nursery_plant_detail' plant.id %}" class="card-title nav-link p-0">
+						<h5>{{ plant.name }}</h5>
+					</a>
+					<p class="card-text"><small class="text-muted">{{plant.published_date|timesince }} ago</small></p>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+
+</div>
+{%endblock %}

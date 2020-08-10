@@ -1,0 +1,114 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% block content %}
+<br><br>
+{% if on_delivery.orders.all %}
+<div class="col-md-12 mb-4">
+    <h4 class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-muted">Your Orders On Way</span>
+        <span class="badge badge-secondary badge-pill">{{ order.plants.count }}</span>
+    </h4>
+    {% for order in on_delivery.orders.all %}
+    {% for order_item in order.plants.all %}
+    <div class="p-3 shadow mb-4">
+        <div>
+            <h6 class="my-0 lead">Plants &nbsp;{{ order_item.quantity }} x {{ order_item.plant.name}}</h6>
+        </div>
+        <span class="lead float-right p-3 shadow">${{ order_item.get_final_price }}</span>
+        <br>
+        <div class="row p-4 justify-content-around">
+            {% csrf_token %}
+            <strong>Progress</strong>
+            <div>
+                {% if order_item.packed is True %}
+                Packed&nbsp;&nbsp;<i class="far fa-check-square"></i>
+                {% else %}
+                Packed&nbsp;&nbsp;<i class="far fa-square"></i>
+                {% endif %}
+            </div>
+            <br>
+            <div>
+                {% if order_item.being_delivered is True %}
+                Being Delivered&nbsp;&nbsp;<i class="far fa-check-square"></i>
+                {% else %}
+                Being Delivered&nbsp;&nbsp;<i class="far fa-square"></i>
+                {% endif %}
+            </div>
+            <br>
+            <div>
+                {% if order_item.received is True %}
+                Received&nbsp;&nbsp;<i class="far fa-check-square"></i>
+                {% else %}
+                Received&nbsp;&nbsp;<i class="far fa-square"></i>
+                {% endif %}
+            </div>
+        </div>
+        {% if order_item.received is True %}
+        {% csrf_token %}
+        <button class="btn btn-danger float-right m-3" id='delete' name='{{order.id}}'>Delete order</button>
+        <button class="btn btn-dark float-right m-3" id='save' name='{{order.id}}'>Save order</button>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% endfor %}
+    {% else %}
+    <div>
+        <h5 class="container d-flex text-dark justify-content-center shadow p-5">Checkout pending orders to know your
+            delivery progress
+            here.
+            <i class="fas fa-truck"></i>
+        </h5>
+    </div>
+    {% endif %}
+</div>
+<small class="text-warning bg-dark">Note Please save and delete order after receiving all plants of that order.
+    Deleting order without receiving may stop updates on delivery.
+</small>
+{% endblock content %}
+
+{% block javascript %}
+
+<script type="text/javascript">
+    // ADDING LIKE AJAX STARTS HERE
+
+    $(' #save').click(function () {
+        alert('saved'); $.ajax({
+            type: 'POST', url: '/orders/save_order/',
+            data:
+            {
+                'order_id': $(this).attr('name'),
+                'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function (data) {
+                $('#notification').html(`<div class="alert alert-dark alert-dismissible">
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                  Order Saved!
+          </div>`);
+            }
+
+        });
+    });
+
+    $('#delete').click(function () {
+        alert('delete');
+        $.ajax({
+            type: 'POST',
+            url: '/orders/delete_order/',
+            data: {
+                'order_id': $(this).attr('name'),
+                'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function (data) {
+                $('#notification').html(`<div class="alert alert-dark alert-dismissible">
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                  Order Deleted!
+          </div>`);
+
+            }
+
+        });
+    });
+</script>
+{% endblock %}

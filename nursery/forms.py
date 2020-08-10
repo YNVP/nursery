@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Profile
+from .models import Nursery 
 from django.forms import ValidationError
 
 
@@ -21,6 +21,11 @@ class UserRegisterForm(UserCreationForm):
             raise forms.ValidationError('This email address is already in use.')
         return email
 
+class NurseryRegisterForm(forms.ModelForm):
+    class Meta:
+        model = Nursery
+        fields = ['name','image']
+
 class UserUpdateForm(forms.ModelForm):
     email = forms.EmailField()
 
@@ -29,7 +34,7 @@ class UserUpdateForm(forms.ModelForm):
         fields = ['username', 'email']
 
 
-class UpdateForm(forms.ModelForm):
+class NurseryUpdateForm(forms.ModelForm):
     class Meta:
-        model = Profile
-        fields = ['image']
+        model = Nursery
+        fields = ['name', 'image']

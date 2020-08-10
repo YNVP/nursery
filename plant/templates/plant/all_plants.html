@@ -1,0 +1,73 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% block content %}
+<br><br>
+<h4>{{about}}</h4>
+<!-- SHOWING COLLECTION NAME -->
+<h4 class="d-flex justify-content-left text-dark"><strong>{{message|safe}}</strong> </h4>
+<h5> {{collection_name}}</h5>
+{% if plants %}
+<div class="container-fluid">
+    <div class="mb-4">
+        <form method='GET' class="form-inline my-2 my-lg-0 justify-content-center">
+            {% bootstrap_form plant_filter.form %}&nbsp;&nbsp;
+            <button class="btn btn-dark shadow">Search</button>
+        </form>
+    </div>
+    <div class="card-columns">
+        {% for plant in plants %}
+        <div class="card mb-3 shadow border " style="max-width: 540px;">
+            <div class="row no-gutters">
+                <div class="col-md-5">
+                    <a href="{% url 'plant_detail' plant.id %}">
+                        <img src="{{ plant.image.url }}" class="card-img w-100" alt="...">
+                    </a>
+                </div>
+                <div class="col-md-7">
+                    <div class="card-body">
+                        <!--Makes plant name and dropdown to single line-->
+                        <a href="{% url 'plant_detail' plant.id %}" class="card-title nav-link p-1 h5 lead">
+                            {{ plant.name }}
+                        </a>
+
+                        <p class="card-text"><small>$ {{plant.price}}</small></p>
+
+                        <p class="card-text"><small class="text-muted">{{ plant.nursery }}</small></p>
+
+                        <p class="card-text"><small class="text-muted">{{plant.published_date|timesince }}
+                                ago</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div>
+    <img src="/media/empty.png" alt="" class="rounded mx-auto d-block w-25">
+    <h5 class="d-flex text-success justify-content-center">Add Plants to see here!</h5>
+</div>
+{% endif %}
+
+
+<!-- Pagination -->
+<ul class="pagination justify-content-center">
+    {% if plants.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+    <li class="page-item"><a class="page-link"
+            href="?{{ page_request_var }}={{ plants.previous_page_number }}">{{plants.number|add:"-1"}}</a></li>
+    {% endif %}
+    <li class="page-item active">
+        <p class="page-link">{{ plants.number }} </p>
+    </li>
+    {% if plants.has_next %}
+    <li class="page-item"><a class="page-link" href="?{{ page_request_var }}={{ plants.next_page_number }}">
+            {{plants.number|add:"1"}}</a></li>
+    <li class="page-item"><a class="page-link" href="?{{ page_request_var }}={{ plants.paginator.num_pages }}">Last</a>
+    </li>
+    {% endif %}
+</ul>
+{% endblock content %}

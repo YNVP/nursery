@@ -1,0 +1,140 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% load qr_tags %}
+
+{% block content %}
+<div class="p-3 shadow mb3">
+    <div>
+        <h6 class="my-0">Plants &nbsp;{{ order.quantity }} x {{ order.plant.name}}</h6>
+    </div>
+    <span class="lead float-right p-2 border border-success">${{ order.get_final_price }}</span>
+    <br>
+    <div class="row p-4 justify-content-around">
+        {% csrf_token %}
+        <div>
+            {% if order.packed is True %}
+            Packed&nbsp;&nbsp;<input type="checkbox" class="packed" order_id='{{order.id}}' checked></input>
+            {% else %}
+            Packed&nbsp;&nbsp;<input type="checkbox" class="packed" order_id='{{order.id}}'></input>
+            {% endif %}
+        </div>
+        <br>
+        <div>
+            {% if order.being_delivered is True %}
+            Being Delivered&nbsp;&nbsp;<input type="checkbox" class="delivery" order_id='{{order.id}}' checked></input>
+            {% else %}
+            Being Delivered&nbsp;&nbsp;<input type="checkbox" class="delivery" order_id='{{order.id}}'></input>
+            {% endif %}
+        </div>
+        <br>
+        <div>
+            {% if order.received is True %}
+            Received&nbsp;&nbsp;<input type="checkbox" class="received" order_id='{{order.id}}' checked></input>
+            {% else %}
+            Received&nbsp;&nbsp;<input type="checkbox" class="received" order_id='{{order.id}}'></input>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class='p-2' id="printableArea{{order.id}}">
+        {% qr_from_object order "s" %}
+        <br>
+        Address
+        <br>
+        {{order.user.address.street_address}}
+        {{order.user.address.apartment_address}}
+        {{order.user.address.zip}}
+        <br>
+    </div>
+    <input class="btn btn-dark shadow" type="button" onclick="printDiv('printableArea{{order.id}}')"
+        value="Print Address" />
+</div>
+{% endblock %}
+{% block javascript %}
+<script type="text/javascript">
+    function printDiv(divName) {
+        var printContents = document.getElementById(divName).innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+
+        window.print();
+
+        document.body.innerHTML = originalContents;
+    }
+    $('.packed').click(function () {
+        $.ajax({
+            type: 'POST',
+            url: '/nursery/add_pack_status/',
+            data: {
+                'order_id': $(this).attr('order_id'),
+                'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function (data) {
+                if (data == 'a') {
+                    $('#notification').html(`<div class="alert alert-dark alert-dismissible">
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                  Packed! Status submitted
+          </div>`);
+                }
+                else {
+                    $('#notification').html(`<div class="alert alert-dark alert-dismissible">
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                  Status Changed!
+          </div>`);
+                }
+            }
+        });
+    });
+    $('.delivery').click(function () {
+        $.ajax({
+            type: 'POST',
+            url: '/nursery/add_delivery_status/',
+            data: {
+                'order_id': $(this).attr('order_id'),
+                'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function (data) {
+                if (data == 'a') {
+                    $('#notification').html(`<div class="alert alert-dark alert-dismissible">
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                  Packed! Status submitted
+          </div>`);
+                }
+                else {
+                    $('#notification').html(`<div class="alert alert-dark alert-dismissible">
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                  Status Changed!
+          </div>`);
+                }
+            }
+        });
+    });
+    $('.received').click(function () {
+        $.ajax({
+            type: 'POST',
+            url: '/nursery/add_receive_status/',
+            data: {
+                'order_id': $(this).attr('order_id'),
+                'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function (data) {
+                if (data == 'a') {
+                    $('#notification').html(`<div class="alert alert-dark alert-dismissible">
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                  Packed! Status submitted
+          </div>`);
+                }
+                else {
+                    $('#notification').html(`<div class="alert alert-dark alert-dismissible">
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                  Status Changed!
+          </div>`);
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

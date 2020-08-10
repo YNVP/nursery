@@ -1,0 +1,43 @@
+{% extends "users/base.html" %}
+{% load crispy_forms_tags %}
+{% load bootstrap4 %}
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card card-user">
+            <div class="card-body">
+                <div class="author text-center">
+                    <a href="">
+                        <img class="rounded-circle account-img" src="{{ user.profile.image.url }}" alt="Profile Img">
+                        <h5 class="title">{{user.first_name}} {{user.last_name}}</h5>
+                    </a>
+                    <p class="description">
+                        @{{ user.username }}
+                    </p>
+                </div>
+                <p class="description text-center">
+                    {{ user.profile.quote }}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="card card-user">
+                <div class="card-header">
+                    <h5 class="card-title">Edit Address</h5>
+                </div>
+                Address Info:
+                {% bootstrap_form form %}
+                <div class="row">
+                    <div class="form-group">
+                        <button class="btn btn-outline-success shadow" type="submit">Update Info</button>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </form>
+</div>
+</div>
+{% endblock content %}

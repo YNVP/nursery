@@ -39,17 +39,23 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # To make numbers easy for human reading
     'django.contrib.humanize',
+    'django.contrib.sites',
     # User app
     'users.apps.UsersConfig',
     'blog.apps.BlogConfig',
+    'plant.apps.PlantConfig',
+    'orders.apps.OrdersConfig',
+    'nursery.apps.NurseryConfig',
     # Forms
     'crispy_forms',
     # Comments app
     'comment',
     # Beautify forms
     'bootstrap4',
-    # Debug Toolbar
-    'debug_toolbar'
+    # Filter objects in any app
+    'django_filters',
+    # qr code to scan and know order status
+    'qrcode'
 ]
 
 MIDDLEWARE = [
@@ -132,33 +138,33 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-#STATIC SETTINGS
+# STATIC SETTINGS
 STATIC_ROOT = 'static/'
 
-#MEDIA
+# MEDIA
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-#CRISPY FORMS SETTINGS
+# CRISPY FORMS SETTINGS
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-#REDIRECT SETTINGS
+# REDIRECT SETTINGS
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'home'
+LOGIN_REDIRECT_URL = 'all_plants'
+LOGOUT_REDIRECT_URL = 'all_plants'
 
-#DJANGO MAIL SETTINGS
+# DJANGO MAIL SETTINGS
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER='nagavarapradeepyendluri@gmail.com'
-EMAIL_HOST_PASSWORD='N@gamani1999'
+EMAIL_HOST_USER = 'nagavarapradeepyendluri@gmail.com'
+EMAIL_HOST_PASSWORD = 'N@gamani1999'
 DEFAULT_FROM_EMAIL = "Helpdesk <helpdesk@zoro>"
 
 
 # CACHEALOT SETTINGS STARTS HERE
-CACHALOT_ENABLED=True
+CACHALOT_ENABLED = True
 # CACHEALOT SETTINGS ENDS HERE
 
 # DEBUG TOOLBAR SETTINGS STARTS HERE
@@ -182,3 +188,26 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 # DEBUG TOOLBAR SETTINGS ENDS HERE
+
+
+# DJANGO FILTER SETTINGS
+
+FILTERS_EMPTY_CHOICE_LABEL = ''
+
+
+def FILTERS_VERBOSE_LOOKUPS():
+    from django_filters.conf import DEFAULTS
+
+    verbose_lookups = DEFAULTS['VERBOSE_LOOKUPS'].copy()
+    verbose_lookups.update({
+        'exact': '',
+        'iexact': '',
+        'contains': '',
+        'icontains': '',
+    })
+    return verbose_lookups
+# DJANGO FILTER SETTINGS  ENDS HERE
+
+
+# Reidrect site id for postman and comments app change it if you add new site
+SITE_ID = 1

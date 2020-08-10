@@ -1,0 +1,126 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% load humanize %}
+{% load groupcheck %}
+
+{% block content %}
+<div class="row mb-5 ">
+    <div class="col-md-3 d-flex justify-content-center">
+        <img class="rounded" src="{{plant.image.url}}" alt="{{plant.name}} cover page" id='bg_image'>
+    </div>
+    <div class="col-md-6">
+        <h5 class="card-title p-3 pl-2 lead" style="display: inline;text-align: center;">{{ plant.name }}</h5>
+        <br>
+        <p class="small mt-3">Description</p>
+        <p class="border border-light p-3 shadow">
+            {{plant.description}}
+        </p>
+        <p class="small mt-3 mb-1">Price</p>
+        <p class='cart-text p-1'>
+            $ {{ plant.price }}
+        </p>
+        <p class="small mt-3 mb-1">Nursery</p>
+        <p>
+            {{ plant.nursery }}
+        </p>
+
+        {% if user.is_authenticated %}
+        {% csrf_token %}
+        {% if plant in user.favorite.all %}
+        <button class="btn btn-light btn-circle btn-md" id="like" name="{{ plant.id }}"><i
+                class="foo fas fa-heart"></i></button>
+        {% else %}
+        <button class="btn btn-light btn-circle btn-md" id="like" name="{{ plant.id }}"><i
+                class="foo far fa-heart"></i></button>
+        {% endif %} &nbsp;
+        {% else %}
+        <small>Please <a href="{% url 'login' %}">login</a> to favorite and add plant to cart</small>
+        {% endif %}
+        {% if request.user|has_group:"normal" %}
+        {% csrf_token %}
+        <p>Plant Stock {{plant.stock}}</p>
+
+        {% if plant.stock > 0 %}
+        <div class="number-input md-number-input">
+            <button onclick="this.parentNode.querySelector('input[type=number]').stepDown()" class="minus"></button>
+            <input class="quantity" min="1" max="{{plant.stock}}" name="quantity" value="1" type="number" id="quantity">
+            <button onclick="this.parentNode.querySelector('input[type=number]').stepUp()" class="plus"></button>
+        </div>
+        <button class="btn btn-dark btn-md" id="cart" name="{{ plant.id }}">
+            add to cart</button>
+        {% endif %}
+        {% endif %}
+
+        <br>
+    </div>
+</div>
+<!-- DONOT DELETE THIS DIV (AJAX CALL FAVORITE NOTIFIER) -->
+<div id="notification" class="fixed-bottom col-md-4">
+</div>
+
+{% endblock content %}
+
+{% block javascript %}
+
+<script type="text/javascript">
+    // ADDING LIKE AJAX STARTS HERE
+    $('#like').click(function () {
+        $.ajax({
+            type: 'POST',
+            url: '/plant/add_favorite/',
+            data: {
+                'plant_id': $(this).attr('name'),
+                'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function () {
+                var icon = $('.foo');
+                var icon_fa_prefix = icon.attr('data-prefix');
+
+                if (icon_fa_prefix === 'fas') {
+                    icon.attr('data-prefix', 'far');
+                    $('#notification').html(`
+                  <div class="alert alert-dark alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    Removed from favorites!
+                  </div>`);
+                    $("#notification").fadeTo(2000, 500).slideUp(500, function () {
+                        $("#notification").slideUp(500);
+                    });
+                } else {
+                    icon.attr('data-prefix', 'fas');
+                    $('#notification').html(`<div class="alert alert-dark alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                     Added to favorites!
+                  </div>`);
+                    $("#notification").fadeTo(2000, 500).slideUp(500, function () {
+                        $("#notification").slideUp(500);
+                    });
+                }
+            }
+        });
+    });
+    $('#cart').click(function () {
+        $.ajax({
+            type: 'POST',
+            url: '/orders/add_to_cart/',
+            data: {
+                'plant_id': $(this).attr('name'),
+                'quantity': $('#quantity').val(),
+                'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function () {
+                $('#notification').html(`
+                  <div class="alert alert-success alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    Plant Added to your cart!
+                  </div>`);
+                $("#notification").fadeTo(2000, 500).slideUp(500, function () {
+                    $("#notification").slideUp(500);
+                });
+            }
+        });
+    });
+</script>
+
+
+{% endblock %}

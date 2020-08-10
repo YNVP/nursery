@@ -4,6 +4,8 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from users import views as user_views
+from django.db.models.signals import pre_save
+
 
 urlpatterns = [
     path('register/', user_views.register, name='register'),
@@ -30,5 +32,7 @@ urlpatterns = [
              template_name='users/password_reset_complete.html'
          ),
          name='password_reset_complete'),
-    path('', include('blog.urls')),
+    path('favorites/', user_views.favorite, name="favorites"),
+    path('<slug:slug>/address',
+         user_views.AddressUpdateView.as_view(), name='address'),
 ]

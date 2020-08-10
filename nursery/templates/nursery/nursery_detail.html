@@ -1,0 +1,95 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+{% load humanize %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-3">
+    <div class="shadow m-1 rounded">
+      <div class="card-body">
+        <div class="author text-center">
+          <img class="rounded-circle account-img w-50" src="{{nursery.image.url}}" alt="Profile Img">
+          <p class="description lead">
+            @{{ nursery.name }}
+
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-9 shadow">
+    <div class="container m-1">
+      <div>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link" id="follower-tab" data-toggle="tab" href="#followers" role="tab" aria-controls="drafted"
+              aria-selected="false">Plants </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#published" role="tab"
+              aria-controls="published" aria-selected="true">Next Updated Plants </a>
+          </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content" id="myTabContent">
+          <div class="tab-pane fade show active" id="published" role="tabpanel" aria-labelledby="home-tab">
+            We'll update plants shortly, please checkout later.
+          </div>
+          <div class="tab-pane fade" id="followers" role="tabpanel" aria-labelledby="follower-tab">
+            {% for plant in plants %}
+            <div class="card mb-3 shadow" style="max-width: 540px;">
+              <div class="row no-gutters">
+                <div class="col-md-5">
+                  <a href="{% url 'plant_detail' plant.id %}">
+                    <img class="rounded" src="{{plant.image.url}}" alt="{{plant.name}} cover page" id='bg_image'>
+                  </a>
+                </div>
+                <div class="col-md-7">
+                  <div class="card-body">
+                    <a href="{% url 'plant_detail' plant.id %}" class="card-title nav-link p-0">
+                      <h5>{{ plant.name }}</h5>
+                    </a>
+                    <p class="card-text"><small class="text-muted">{{plant.published_date|timesince }} ago</small></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <br>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock content %}
+
+{% block javascript %}
+<script type="text/javascript">
+  $('#foll').click(function () {
+    $.ajax({
+      type: 'POST',
+      url: '/follow/',
+      data: {
+        'follower_id': '{{user.id}}',
+        'action': $('#foll').attr('value'),
+        'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+      },
+      success: function (data) {
+        var icon = $('#foll');
+        if (data == 'f') {
+          $('#foll').html("Follow");
+          icon.attr('value', 'f');
+        }
+        else {
+          $('#foll').html("Unfollow");
+          icon.attr('value', 'u');
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

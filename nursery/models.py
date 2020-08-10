@@ -1,20 +1,22 @@
 from django.db import models
 from django.contrib.auth.models import User
 from PIL import Image
-from plant.models import Plant
+from django.db.models.signals import pre_save
+from users.utils import unique_slug_generator, random_string_generator
+from django.urls import reverse
 
 
-class Nursery(models.Model, HitCountMixin):
+class Nursery(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
     image = models.ImageField(default='plant.jpeg', upload_to='plant_pics')
-    plants = models.ManyToManyField(Plant, related_name='nursery_plants')
-    published_date = models.DateField(default=timezone.now)
+    slug = models.SlugField(max_length=250, null=True, blank=True)
 
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("detail", args=[str(self.id)])
+        return reverse("nursery_detail", args=[str(self.name)])
 
     def save(self, *args, **kwargs):
         super().save()
@@ -25,3 +27,12 @@ class Nursery(models.Model, HitCountMixin):
             output_size = (300, 300)
             img.thumbnail(output_size)
             img.save(self.image.path)
+
+
+def pre_save_receiver(sender, instance, *args, **kwargs):
+    if not instance.slug:
+        instance.slug = unique_slug_generator(
+            instance, random_string_generator())
+
+
+pre_save.connect(pre_save_receiver, sender=Nursery)

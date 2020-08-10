@@ -1,0 +1,103 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% block content %}
+<br><br>
+{% if order %}
+<div class="col-md-12 mb-4">
+    <h4 class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-muted">Your cart</span>
+        <span class="badge badge-secondary badge-pill">{{ order.plants.count }}</span>
+    </h4>
+    <ul class="list-group mb-3 z-depth-1">
+        {% for order_item in order.plants.all %}
+        <li class="list-group-item d-flex justify-content-between lh-condensed">
+            <div>
+                <h6 class="my-0">{{ order_item.quantity }} x {{ order_item.plant.name}}</h6>
+                <small class="text-muted">{{ order_item.plant.description}}</small>
+            </div>
+            <span class="text-muted">${{ order_item.get_final_price }}</span>
+            {% if order_item.packed is True %}
+            <p>Packed <i class="far fa-check-square"></i></p>
+            {% else %}
+            Packed <i class="far fa-square"></i>
+            {% endif %}
+            {% if order_item.being_delivered is True %}
+            <p>Being Delivered <i class="far fa-check-square"></i></p>
+            {% else %}
+            <p>Being Delivered <i class="far fa-square"></i></p>
+            {% endif %}
+            {% if order_item.received is True %}
+            <p>Received <i class="far fa-check-square"></i></p>
+            {% else %}
+            <p>Received <i class="far fa-square"></i></p>
+            {% endif %}
+        </li>
+        {% endfor %}
+
+        <li class="list-group-item d-flex justify-content-between">
+            <span>Total (USD)</span>
+            <strong>${{ order.get_total }}</strong>
+        </li>
+    </ul>
+
+    <hr class="mb-4">
+    {% if checked is False %}
+    {% csrf_token %}
+    <div class='p-2'>
+        <br>
+        <strong>Address</strong>
+        <br>
+        {{order.user.address.street_address}}
+        <br>
+        {{order.user.address.apartment_address}}w
+        <br>
+        <strong>{{order.user.address.zip}}</strong>
+        <br>
+        <a class="btn btn-dark shadow" href="{% url 'address' request.user.address.slug %}">Change address</a>
+    </div>
+    <button class="btn btn-primary float-right" id='checkout'>Continue to checkout</button>
+    <small class="text-danger">Incorrect address or zip leads to rejection of order.</small>
+    {% endif %}
+    {% else %}
+    <div>
+        <h5 class="container d-flex text-dark justify-content-center shadow p-5">Add items to checkout your cart ! <i
+                class="fas fa-shopping-cart"></i></h5>
+    </div>
+
+    {% endif %}
+    {% endblock content %}
+
+    {% block javascript %}
+
+    <script type="text/javascript">
+        // ADDING LIKE AJAX STARTS HERE
+        $('#checkout').click(function () {
+            alert('chekcing');
+            $.ajax({
+                type: 'POST',
+                url: '/orders/confirm_checkout/',
+                data: {
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+                },
+                success: function () {
+                    window.location.href = "/orders/on_delivery";
+                }
+            });
+        });
+        $('#delete').click(function () {
+            alert('delete');
+            $.ajax({
+                type: 'POST',
+                url: '/orders/delete_order/',
+                data: {
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+                },
+                success: function () {
+                    $('.list-group').html('<p>Add Items to your cart</p>');
+                }
+            });
+        });
+    </script>
+    {% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'users/base.html' %}
+{% load bootstrap4 %}
+{% load groupcheck %}
+
+{% block content %}
+<div class="content-section d-flex justify-content-center">
+    {% if request.user|has_group:"nursery" %}
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <fieldset class="form-group">
+            <h5 style="text-align: center;">Plant Add Form</h5>
+            {{form.media}}
+            {% bootstrap_form form %}
+        </fieldset>
+        <div class="form-group text-center">
+            <button class="btn btn-outline-dark" type="submit">Add Plant</button>
+        </div>
+    </form>
+    {% else %}
+    <p>Only Nurseries can add Plants &nbsp;</p><br>
+    <p>return to <a href="{% url 'landing_page' %}">Home</a> page</p>
+    {% endif %}
+</div>
+{% endblock content %}
+{% block javascript %}
+
+{% endblock %}
