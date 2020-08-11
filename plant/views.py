@@ -6,7 +6,7 @@ from nursery.models import Nursery
 from .filters import PlantFilter
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.generic import UpdateView
+from django.views.generic import UpdateView, CreateView
 from django.contrib import messages
 # Login required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -14,9 +14,16 @@ from django.contrib.auth.decorators import login_required
 
 from django.http import HttpResponseRedirect, HttpResponse
 
-from .forms import PlantCreateForm
 from django.db.models import Q
 
+
+class PlantCreateView(LoginRequiredMixin, CreateView):
+    model = Plant
+    fields = ["name","description", "image", "stock","nursery"]
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
 def all_plants(request):
     plants = Plant.objects.all()
@@ -59,22 +66,6 @@ def plant_detail(request, plant_id):
     }
     return render(request, 'plant/plant_detail.html', context)
 
-
-def sow_plant(request):
-    if request.method == 'POST':
-        plant_form = PlantCreateForm(request.POST, user=request.user)
-        if plant_form.is_valid():
-            plant_form.instance.author = request.user
-            plant_form.save()
-            messages.success(
-                request, f'Your Plant is now on sale! Checkout orders section to send plants')
-            return redirect('landing_page')
-    else:
-        plant_form = PlantCreateForm(user=request.user)
-    context = {
-        'plant_form': plant_form
-    }
-    return render(request, 'plant/plant_form.html', context)
 
 
 class PlantUpdateView(LoginRequiredMixin, UpdateView):
