@@ -19,7 +19,7 @@ from django.db.models import Q
 
 class PlantCreateView(LoginRequiredMixin, CreateView):
     model = Plant
-    fields = ["name","description", "image", "stock","nursery"]
+    fields = ["name","description", "price", "image", "stock","nursery"]
 
     def form_valid(self, form):
         form.save()
