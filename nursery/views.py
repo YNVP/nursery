@@ -67,7 +67,7 @@ def register(request):
             nursery_group.user_set.add(user)
             messages.success(
                 request, f'Your Nursery has been created successfully!')
-            return redirect('nursery_login')
+            return redirect('login')
     else:
         u_form = UserRegisterForm()
         n_form = NurseryRegisterForm()
